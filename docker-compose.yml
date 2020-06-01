@@ -1,0 +1,108 @@
+version: '3.7'
+services:
+  sep-elb:
+    image: traefik:2.2
+    # command: --web --api --docker --docker.domain=traefik.test --logLevel=DEBUG
+    command: >
+      --providers.docker
+      --providers.docker.exposedbydefault=false
+      --entryPoints.http.address=":80"
+      --accesslog
+      --log.level=DEBUG
+      --api=true
+      --api.dashboard=true
+    depends_on:
+      - "sep-stat"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./sep-elb/traefik/conf:/toml
+      - ./sep-elb/traefik/traefik.toml:/etc/traefik/traefik.toml
+    networks:
+      private:
+        aliases:
+          - "sep-elb"
+      public:
+
+  sep-stat:
+    build:
+      context: sep-service-stat
+      dockerfile: Dockerfile 
+    networks:
+      private:
+        # the aliases are not required, but are useful if the applications want to internally
+        # reference each other by host name
+        aliases:
+        - "sep-stat"
+      public:
+    #ports:    
+    #  - "10011:10011"  
+    labels:
+      - "traefik.http.routers.sep-stat.entrypoints=web"
+      - "traefik.http.routers.sep-stat.rule=PathPrefix(`/api/v1/person`)"
+      - "traefik.http.services.sep-stat.loadbalancer.server.port=10011"
+      - "traefik.backend=sep-stat"
+      - "traefik.port=10011"
+      - "traefik.backend.healthcheck.path=/health"
+      - "traefik.enable=true"
+
+  sep-info:
+    build:
+      context: sep-service-info
+      dockerfile: Dockerfile
+    networks:
+      private:
+        # the aliases are not required, but are useful if the applications want to internally
+        # reference each other by host name
+        aliases:
+        - "sep-info"
+      public:
+    #ports:    
+    #  - "10011:10011"  
+    labels:
+      - "traefik.http.routers.sep-info.entrypoints=web"
+      - "traefik.http.routers.sep-info.rule=PathPrefix(`/info`, `/atom`)"
+      - "traefik.http.services.sep-info.loadbalancer.server.port=3000"
+      - "traefik.backend=sep-info"
+      - "traefik.port=3000"
+      - "traefik.backend.healthcheck.path=/health"
+      - "traefik.enable=true"  
+
+  sep-nginx:
+    build:
+      context: sep-server
+      dockerfile: Dockerfile
+    depends_on:
+      - "sep-elb"   
+    networks:
+      private:
+        # the aliases are not required, but are useful if the applications want to internally
+        # reference each other by host name
+        aliases:
+        - "sep-nginx"
+      public:
+    ports:    
+      - "9000:80"  
+    labels:
+      - "traefik.http.routers.sep-nginx.entrypoints=web"
+      - "traefik.http.routers.sep-nginx.rule=PathPrefix(`/`)"
+      - "traefik.http.services.sep-nginx.loadbalancer.server.port=80"
+      - "traefik.backend=sep-nginx"
+      - "traefik.port=80"
+      #- "traefik.backend.healthcheck.path=/health"
+      - "traefik.enable=true"
+    volumes:
+      - ./sep-server/html:/usr/local/openresty/nginx/html
+      - ./sep-server/templates:/usr/local/openresty/nginx/templates
+      - ./sep-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf 
+      # this differs from a normal -v folder mount to maintaine with/out traefik 
+      - ./sep-server/conf/conf.d/default-traefik.conf:/etc/nginx/conf.d/default.conf
+
+networks:
+  # everything that is *only* on "internal network" cannot talk to WAN
+  private:
+    internal: true
+  # add this network to a container to make it talk to the rest of the world
+  public:

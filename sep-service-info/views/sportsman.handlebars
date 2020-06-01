@@ -1,0 +1,24 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+	 <meta charset="UTF-8">
+	 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	 <title>Homepage</title>
+	  <link rel="stylesheet" href="views/sportsman.css">
+ </head>
+ <body>
+	 <h1 style="color:red;">Image</h1>
+	 <img src="" alt="Myphoto">
+	 
+		  <h1>Description</h1>
+	<ul>
+	 {{#each opinions}}
+		<li>{{formatDate date day="numeric" month="long" year="numeric"}} <span>{{name}} ({{age}} y.o.)</span> - {{rank}} </li>
+	{{/each}}
+	</ul>
+  		  <h1>Statistics</h1>
+
+			 <h1>Recent Videos</h1>
+
+ </body>
+ </html> 

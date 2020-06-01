@@ -1,0 +1,217 @@
+swagger: "2.0"
+info:
+  version: "3.0.16"
+  title: SEP Stat service
+# during dev, should point to your local machine
+# host: localhost:10011
+# basePath prefixes all resource paths 
+# basePath: /api/v1
+# 
+# schemes:
+  # tip: remove http to make production-grade
+
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+  - application/xml
+paths:
+  /person/bets:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: bets
+    get:
+      description: List of bets
+      # used as the method name of the controller
+      operationId: listBets
+      parameters:
+        - name: statisticId
+          in: query
+          description: Bets user list
+          required: false
+          type: string
+        - name: startTime
+          in: query
+          description: Start time of bets updates
+          required: false
+          type: string  
+        - name: endTime
+          in: query
+          description: End time of bets updates
+          required: false
+          type: string   
+        - name: page
+          in: query
+          description: Page to iterate, 1 is default
+          required: false
+          type: number             
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: array
+            items:
+                $ref: "#/definitions/PersonBet"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /person/videos:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: bets
+    get:
+      description: List of videos with sportsman or interesting videos for agent and fanat
+      # used as the method name of the controller
+      operationId: listPersonVideos
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: array
+            items:
+                $ref: "#/definitions/PersonVideo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /person/statistics:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: bets
+    get:
+      description: List of statistic about our user
+      # used as the method name of the controller
+      operationId: listStatistics
+      parameters:
+        - name: person
+          in: query
+          description: Total goals/wins
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: array
+            items:
+                $ref: "#/definitions/PersonStatistic"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          
+            
+  /person/extrastats:
+    x-swagger-router-controller: bets 
+    get:
+      description: List of additional premium statisticss
+      # used as the method name of the controller
+      operationId: stats
+      parameters:
+        - name: date
+          in: query
+          description: Date to get the stats
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+              type: string
+              #$ref: "#/definitions/Orders"
+                      
+                    
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  PersonStatistic:
+    required:
+      - goals
+    properties:
+      goals:
+        type: string
+      geo:
+        type: string
+      team:
+        type: string
+      personMoney:
+        type: array
+        description: Personal statistics that are available to watch
+        items:
+          type: string
+  PersonBet:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      takeOffId:
+        type: number
+      personMoney:
+        type: string
+      time:
+        type: string
+      status:
+        description: win | loose
+        type: string
+       
+  PersonVideo:
+    required:
+      - time
+    properties:
+      time:
+        type: string
+      name:
+        type: string
+        
+  Bets:
+    xml:
+      wrapped: true
+    type: array
+    items:
+      "$ref": "#/definitions/Bet"
+  
+  Bet:
+    xml: 
+      name : bet
+    properties:
+      bet:
+        type: string
+      date:
+        type: string
+        xml:
+          attribute: true
+      sport:
+        type: string
+        xml:
+          attribute: true
+      who:
+        type: string
+        xml:
+          attribute: true
+        
+        
+        
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+# Added by API Auto Mocking Plugin
+host: localhost:10011
+basePath: /api/v1
+schemes:
+ - https
+ - http

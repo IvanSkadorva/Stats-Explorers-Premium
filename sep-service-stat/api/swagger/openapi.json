@@ -1,0 +1,364 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "3.0.16",
+    "title": "SEP Stat service"
+  },
+  "paths": {
+    "/person/bets": {
+      "x-swagger-router-controller": "bets",
+      "get": {
+        "description": "List of bets",
+        "operationId": "listBets",
+        "parameters": [
+          {
+            "name": "statisticId",
+            "in": "query",
+            "description": "Bets user list",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "Start time of bets updates",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "End time of bets updates",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page to iterate, 1 is default",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonBet"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonBet"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/person/videos": {
+      "x-swagger-router-controller": "bets",
+      "get": {
+        "description": "List of videos with sportsman or interesting videos for agent and fanat",
+        "operationId": "listPersonVideos",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonVideo"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonVideo"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/person/statistics": {
+      "x-swagger-router-controller": "bets",
+      "get": {
+        "description": "List of statistic about our user",
+        "operationId": "listStatistics",
+        "parameters": [
+          {
+            "name": "person",
+            "in": "query",
+            "description": "Total goals/wins",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonStatistic"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonStatistic"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/person/extrastats": {
+      "x-swagger-router-controller": "bets",
+      "get": {
+        "description": "List of additional premium statisticss",
+        "operationId": "stats",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Date to get the stats",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/swagger": {
+      "x-swagger-pipe": "swagger_raw"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://localhost:10011/api/v1"
+    },
+    {
+      "url": "http://localhost:10011/api/v1"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "PersonStatistic": {
+        "required": [
+          "goals"
+        ],
+        "properties": {
+          "goals": {
+            "type": "string"
+          },
+          "geo": {
+            "type": "string"
+          },
+          "team": {
+            "type": "string"
+          },
+          "personMoney": {
+            "type": "array",
+            "description": "Personal statistics that are available to watch",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PersonBet": {
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "takeOffId": {
+            "type": "number"
+          },
+          "personMoney": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "status": {
+            "description": "win | loose",
+            "type": "string"
+          }
+        }
+      },
+      "PersonVideo": {
+        "required": [
+          "time"
+        ],
+        "properties": {
+          "time": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Bets": {
+        "xml": {
+          "wrapped": true
+        },
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Bet"
+        }
+      },
+      "Bet": {
+        "xml": {
+          "name": "bet"
+        },
+        "properties": {
+          "bet": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "xml": {
+              "attribute": true
+            }
+          },
+          "sport": {
+            "type": "string",
+            "xml": {
+              "attribute": true
+            }
+          },
+          "who": {
+            "type": "string",
+            "xml": {
+              "attribute": true
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

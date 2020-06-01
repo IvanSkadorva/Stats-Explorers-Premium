@@ -1,0 +1,41 @@
+# WARNING
+# This is used only in direct docker run with uncommented provider in traefik.toml
+# if used in docker-compose the same parameters needs to be duplicated in labels
+# so THIS IS NOT USED in docker-compose mode
+
+
+# http routing section
+[http]
+  [http.routers]
+    # Define a connection between requests and services
+    [http.routers.sep-info]
+      entryPoints = ["web"]
+      rule = "PathPrefix(`/feedback`)"
+      service = "sep-info"
+
+    [http.routers.sep-stat]
+      entryPoints = ["web"]
+      rule = "PathPrefix(`/api/v1/person`)"
+      service = "sep-stat"
+
+  [http.services]
+    # Define how to reach an existing service on our infrastructure
+    [http.services.sep-info.loadBalancer]
+      [http.services.sep-info.loadBalancer.healthCheck]
+        path = "/health"
+        interval = "5s"
+        timeout = "3s"
+
+      [[http.services.sep-info.loadBalancer.servers]]
+        url = "http://172.17.0.1:3000/"
+      [[http.services.sep-info.loadBalancer.servers]]
+        url = "http://172.17.0.1:3001/"
+
+    [http.services.sep-stat.loadBalancer]
+      [http.services.sep-stat.loadBalancer.healthCheck]
+        path = "/health"
+        interval = "5s"
+        timeout = "3s"
+
+      [[http.services.sep-stat.loadBalancer.servers]]
+        url = "http://172.17.0.1:10011/"
