@@ -1,3 +1,2 @@
-# Forest path service
-
-SEP service is a web news portal about sport
+# Stats Explorers Premium
+SEP is a service for sports news and making bets. 
