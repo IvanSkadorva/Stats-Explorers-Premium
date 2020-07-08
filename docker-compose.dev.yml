@@ -1,31 +1,25 @@
 version: '3.7'
 services:
   sep-elb:
-    build:
-      context: sep-elb
-      dockerfile: Dockerfile
-    image: registry.gitlab.com/Ivan_Skadorva/sep/sep-elb:latest
-    # image: traefik:2.2
+    image: traefik:2.2
     # command: --web --api --docker --docker.domain=traefik.test --logLevel=DEBUG
     command: >
       --providers.docker
-      --providers.docker.exposedbydefault=true
-      --providers.docker.constraints="Label('constraints.zone', 'fp')"
+      --providers.docker.exposedbydefault=false
       --entryPoints.http.address=":80"
       --accesslog
       --log.level=DEBUG
-      --api.insecure=true
       --api=true
       --api.dashboard=true
+    depends_on:
+      - "sep-stat"
     ports:
-      - "9800:80"
-      - "9801:8080"
+      - "80:80"
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-     #  - ./sep-elb/traefik/conf:/toml
-     #  - ./sep-elb/traefik/traefik.toml:/etc/traefik/traefik.toml
-    labels:
-      - "constraints.zone=fp"
+      - ./sep-elb/traefik/conf:/toml
+      - ./sep-elb/traefik/traefik.toml:/etc/traefik/traefik.toml
     networks:
       private:
         aliases:
@@ -34,7 +28,7 @@ services:
 
   sep-stat:
     build:
-      context: sep-service-stat
+      context: sep-service-info
       dockerfile: Dockerfile 
     image: registry.gitlab.com/Ivan_Skadorva/sep/sep-stat:latest
     networks:
@@ -44,12 +38,11 @@ services:
         aliases:
         - "sep-stat"
       public:
-    ports:    
-      - "9803-9805:10011"  
+    #ports:    
+    #  - "10011:10011"  
     labels:
-      - "constraints.zone=fp"
       - "traefik.http.routers.sep-stat.entrypoints=web"
-      - "traefik.http.routers.sep-stat.rule=PathPrefix(`/api/v1/person`)"
+      - "traefik.http.routers.sep-stat.rule=PathPrefix(`/api/v1/tea`)"
       - "traefik.http.services.sep-stat.loadbalancer.server.port=10011"
       - "traefik.backend=sep-stat"
       - "traefik.port=10011"
@@ -68,11 +61,9 @@ services:
         aliases:
         - "sep-info"
       public:
-    ports:    
-      - "9806-9808:3000"  
+    #ports:    
+    #  - "10011:10011"  
     labels:
-      # comment out for test only 
-      # - "constraints.zone=fp"
       - "traefik.http.routers.sep-info.entrypoints=web"
       - "traefik.http.routers.sep-info.rule=PathPrefix(`/info`, `/atom`)"
       - "traefik.http.services.sep-info.loadbalancer.server.port=3000"
@@ -83,7 +74,7 @@ services:
 
   sep-nginx:
     build:
-      context: fp-server
+      context: sep-server
       dockerfile: Dockerfile
     image: registry.gitlab.com/Ivan_Skadorva/sep/sep-nginx:latest
     depends_on:
@@ -96,9 +87,8 @@ services:
         - "sep-nginx"
       public:
     ports:    
-      - "9802:80"  
+      - "9000:80"  
     labels:
-      - "constraints.zone=fp"
       - "traefik.http.routers.sep-nginx.entrypoints=web"
       - "traefik.http.routers.sep-nginx.rule=PathPrefix(`/`)"
       - "traefik.http.services.sep-nginx.loadbalancer.server.port=80"
@@ -106,13 +96,12 @@ services:
       - "traefik.port=80"
       #- "traefik.backend.healthcheck.path=/health"
       - "traefik.enable=true"
-    # volumes are commented due to manual copy in circle config.xml
-    # volumes:
-      # - ./fp-server/html:/usr/local/openresty/nginx/html
-      # - ./fp-server/templates:/usr/local/openresty/nginx/templates
-      # - ./fp-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf 
+    volumes:
+      - ./sep-server/html:/usr/local/openresty/nginx/html
+      - ./sep-server/templates:/usr/local/openresty/nginx/templates
+      - ./sep-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf 
       # this differs from a normal -v folder mount to maintaine with/out traefik 
-      # - ./fp-server/conf/conf.d/default-traefik.conf:/etc/nginx/conf.d/default.conf
+      - ./sep-server/conf/conf.d/default-traefik.conf:/etc/nginx/conf.d/default.conf
 
 networks:
   # everything that is *only* on "internal network" cannot talk to WAN

@@ -1,2 +1,3 @@
-# Stats Explorers Premium
-SEP is a service for sports news and making bets. 
+# Event service
+
+EvM service is a web event portal  for buying tickets and watching news about soon events
